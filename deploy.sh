@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_NAME="animalChat"
+APP_NAME="catcatChat"
 JAR_PATH="/home/ubuntu/catcatChat"
 LOG_FILE="$JAR_PATH/server.log"
 
