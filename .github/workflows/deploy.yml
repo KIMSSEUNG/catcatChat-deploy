@@ -22,11 +22,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-- name: 📦 빌드
-  run: |
-    cd app
-    chmod +x ./gradlew   # 실행 권한 추가
-    ./gradlew clean bootJar
+    - name: 📦 빌드
+      run: |
+        cd app
+        chmod +x ./gradlew   # 실행 권한 추가
+        ./gradlew clean bootJar
 
     - name: 🚀 EC2에 배포
       uses: appleboy/scp-action@v0.1.4
