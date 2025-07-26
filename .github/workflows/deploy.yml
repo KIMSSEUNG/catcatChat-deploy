@@ -1,0 +1,49 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Private 레포 clone
+      uses: actions/checkout@v3
+      with:
+        repository: KIMSSEUNG/ChatPRJ_BE
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        path: app
+
+    - name: 🛠️ JDK 설정
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: 📦 빌드
+      run: |
+        cd app
+        ./gradlew clean bootJar
+
+    - name: 🚀 EC2에 배포
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: |
+          app/build/libs/*.jar
+          deploy.sh
+        target: "/home/ubuntu/catcatChat"
+
+    - name: 🔁 EC2에서 실행 (deploy.sh 실행)
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          chmod +x /home/ubuntu/catcatChat/deploy.sh
+          /home/ubuntu/catcatChat/deploy.sh
