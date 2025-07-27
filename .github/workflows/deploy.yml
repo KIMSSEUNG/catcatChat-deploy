@@ -9,7 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ✅ Private 레포 clone
+      - name: ✅ 현재 리포 clone (deploy.sh용)
+        uses: actions/checkout@v3
+
+      - name: ✅ 외부 ChatPRJ_BE 레포 clone
         uses: actions/checkout@v3
         with:
           repository: KIMSSEUNG/ChatPRJ_BE
