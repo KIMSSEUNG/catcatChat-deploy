@@ -24,7 +24,7 @@ jobs:
 
       - name: 📦 빌드
         run: |
-          cd ChatPRJ_BE
+          cd app
           chmod +x ./gradlew   # 실행 권한 추가
           ./gradlew clean bootJar
 
