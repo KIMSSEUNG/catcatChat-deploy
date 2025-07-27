@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Private 레포 clone
+      - name: ✅ Private 레포 clone
         uses: actions/checkout@v3
         with:
           repository: KIMSSEUNG/ChatPRJ_BE
@@ -22,11 +22,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 📦 빌드
+      - name: 📦 Gradle 빌드
         run: |
           cd app
-          chmod +x ./gradlew   # 실행 권한 추가
+          chmod +x ./gradlew
           ./gradlew clean bootJar
+
+      - name: 🔍 빌드 결과 확인
+        run: |
+          echo "[🔎 JAR 파일 위치 탐색]"
+          find ./app -name "*.jar"
+
+          echo "[📂 디렉토리 목록 출력]"
+          ls -al ./app/build/libs || echo "❌ JAR 폴더 없음"
+          ls -al ./ || echo "❌ 루트 디렉토리 목록 없음"
+
+          echo "[📄 deploy.sh 존재 여부]"
+          test -f ./deploy.sh && echo "✅ deploy.sh 있음" || echo "❌ deploy.sh 없음"
 
       - name: 🚀 EC2에 배포
         uses: appleboy/scp-action@v0.1.4
