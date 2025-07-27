@@ -31,17 +31,26 @@ jobs:
           chmod +x ./gradlew
           ./gradlew clean bootJar
 
-      - name: 🔍 빌드 결과 확인
+      - name: 🔍 빌드 결과 및 파일 점검
         run: |
-          echo "[🔎 JAR 파일 위치 탐색]"
-          find ./app -name "*.jar"
+          echo "[🔎 JAR 파일 존재 확인]"
+          if ls app/build/libs/*.jar 1> /dev/null 2>&1; then
+            echo "✅ JAR 파일 있음"
+            ls -al app/build/libs/*.jar
+            du -sh app/build/libs/*.jar
+          else
+            echo "❌ JAR 파일 없음. 빌드 실패 또는 경로 문제"
+            exit 1
+          fi
 
-          echo "[📂 디렉토리 목록 출력]"
-          ls -al ./app/build/libs || echo "❌ JAR 폴더 없음"
-          ls -al ./ || echo "❌ 루트 디렉토리 목록 없음"
-
-          echo "[📄 deploy.sh 존재 여부]"
-          test -f ./deploy.sh && echo "✅ deploy.sh 있음" || echo "❌ deploy.sh 없음"
+          echo "[📄 deploy.sh 존재 확인]"
+          if [ -f ./deploy.sh ]; then
+            echo "✅ deploy.sh 있음"
+            ls -al ./deploy.sh
+          else
+            echo "❌ deploy.sh 없음. 현재 리포 루트에 있어야 합니다."
+            exit 1
+          fi
 
       - name: 🚀 EC2에 배포
         uses: appleboy/scp-action@v0.1.4
