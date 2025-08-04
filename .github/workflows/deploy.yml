@@ -34,10 +34,10 @@ jobs:
       - name: 🔍 빌드 결과 및 파일 점검
         run: |
           echo "[🔎 JAR 파일 존재 확인]"
-          if ls app/build/libs/*.jar 1> /dev/null 2>&1; then
+          if ls app/build/libs/catcatChat.jar 1> /dev/null 2>&1; then
             echo "✅ JAR 파일 있음"
-            ls -al app/build/libs/*.jar
-            du -sh app/build/libs/*.jar
+            ls -al app/build/libs/catcatChat.jar
+            du -sh app/build/libs/catcatChat.jar
           else
             echo "❌ JAR 파일 없음. 빌드 실패 또는 경로 문제"
             exit 1
@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: |
-                    app/build/libs/*.jar
+                    app/build/libs/catcatChat.jar
                     deploy.sh
           target: "/home/ubuntu/catcatChat"
 
