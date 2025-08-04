@@ -18,6 +18,7 @@ jobs:
           repository: KIMSSEUNG/ChatPRJ_BE
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           path: app
+          ref: main
 
       - name: 🛠️ JDK 설정
         uses: actions/setup-java@v3
