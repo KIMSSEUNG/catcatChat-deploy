@@ -62,8 +62,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: |
-                    app/build/libs/catcatChat.jar
-                    deploy.sh
+            app/build/libs/catcatChat.jar
+            deploy.sh
           target: "/home/ubuntu/catcatChat"
 
       - name: 🔁 EC2에서 실행 (deploy.sh 실행)
