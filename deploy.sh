@@ -15,7 +15,7 @@ else
 fi
 
 echo "🚀 새 애플리케이션 실행 중..."
-nohup java -jar $JAR_PATH/*.jar > $LOG_FILE 2>&1 &
+nohup java -Duser.timezone=Asia/Seoul -jar $JAR_PATH/*.jar > $LOG_FILE 2>&1 &
 
 NEW_PID=$!
 echo "✅ 새 PID: $NEW_PID"
