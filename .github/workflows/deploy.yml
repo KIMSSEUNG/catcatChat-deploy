@@ -65,6 +65,8 @@ jobs:
             app/build/libs/catcatChat.jar
             deploy.sh
           target: "/home/ubuntu/catcatChat"
+          overwrite: true
+          strip_components: 0
 
       - name: 🔁 EC2에서 실행 (deploy.sh 실행)
         uses: appleboy/ssh-action@master
