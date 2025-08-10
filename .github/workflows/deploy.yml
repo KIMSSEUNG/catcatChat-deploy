@@ -79,5 +79,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "Using SHA: ${{ env.BE_SHA }}"
             chmod +x /home/ubuntu/catcatChat/deploy.sh
-            /home/ubuntu/catcatChat/deploy.sh ${BE_SHA}
+            /home/ubuntu/catcatChat/deploy.sh "${{ env.BE_SHA }}"
+
