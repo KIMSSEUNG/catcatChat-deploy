@@ -67,10 +67,10 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: ${{ steps.extract.outputs.jar_path }},deploy.sh
-          target: "/home/ubuntu/catcatChat"
+          source: app/build/libs/catcatChat-${{ env.BE_SHA }}.jar,deploy.sh
+          target: /home/ubuntu/catcatChat
           overwrite: true
-          strip_components: 0
+          strip_components: 3
 
       - name: 🔁 EC2에서 실행 (deploy.sh 실행, SHA 전달)
         uses: appleboy/ssh-action@master
