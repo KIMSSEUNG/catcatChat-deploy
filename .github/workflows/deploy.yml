@@ -7,61 +7,61 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
       - name: ✅ 현재 리포 clone (deploy.sh용)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
 
       - name: ✅ 외부 ChatPRJ_BE 레포 clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: KIMSSEUNG/ChatPRJ_BE
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           path: app
           ref: main
+          fetch-depth: 0
 
       - name: 🛠️ JDK 설정
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 📦 Gradle 빌드
+      - name: 📦 Gradle 빌드 (+ SHA 태깅)
         run: |
           cd app
           chmod +x ./gradlew
           ./gradlew clean bootJar
+          # 외부 레포의 커밋 SHA (7자리)
+          BE_SHA=$(git rev-parse --short=7 HEAD)
+          echo "BE_SHA=$BE_SHA" >> $GITHUB_ENV
+          # 산출물 파일명에 SHA 붙이기
+          mv build/libs/catcatChat.jar build/libs/catcatChat-${BE_SHA}.jar
 
       - name: 🔍 빌드 결과 및 파일 점검
         run: |
           echo "[📂 libs 디렉토리 내 파일 목록]"
           ls -al app/build/libs
           echo "[🔎 JAR 파일 존재 확인]"
-          if ls app/build/libs/catcatChat.jar 1> /dev/null 2>&1; then
-            echo "✅ JAR 파일 있음"
-            ls -al app/build/libs/catcatChat.jar
-            du -sh app/build/libs/catcatChat.jar
-          else
-            echo "❌ JAR 파일 없음. 빌드 실패 또는 경로 문제"
-            exit 1
-          fi
+          test -f "app/build/libs/catcatChat-${BE_SHA}.jar"
+          echo "✅ JAR 파일 있음: app/build/libs/catcatChat-${BE_SHA}.jar"
+          du -sh "app/build/libs/catcatChat-${BE_SHA}.jar"
 
           echo "[📄 deploy.sh 존재 확인]"
-          if [ -f ./deploy.sh ]; then
-            echo "✅ deploy.sh 있음"
-            ls -al ./deploy.sh
-          else
-            echo "❌ deploy.sh 없음. 현재 리포 루트에 있어야 합니다."
-            exit 1
-          fi
+          test -f ./deploy.sh && ls -al ./deploy.sh
 
       - name: 📌 JAR 경로 추출
         id: extract
         run: |
-          JAR_PATH=$(find app/build/libs -name "*.jar" | head -n 1)
-          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
+          echo "jar_path=app/build/libs/catcatChat-${BE_SHA}.jar" >> $GITHUB_OUTPUT
 
-      - name: 🚀 EC2에 배포
+      - name: 🚀 EC2에 배포 (JAR + deploy.sh)
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -72,7 +72,7 @@ jobs:
           overwrite: true
           strip_components: 0
 
-      - name: 🔁 EC2에서 실행 (deploy.sh 실행)
+      - name: 🔁 EC2에서 실행 (deploy.sh 실행, SHA 전달)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -80,4 +80,4 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             chmod +x /home/ubuntu/catcatChat/deploy.sh
-            /home/ubuntu/catcatChat/deploy.sh
+            /home/ubuntu/catcatChat/deploy.sh ${BE_SHA}
